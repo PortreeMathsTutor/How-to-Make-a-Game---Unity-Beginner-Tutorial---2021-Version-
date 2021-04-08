@@ -1,0 +1,49 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[SelectionBase]
+public class Vase : MonoBehaviour
+{
+    [SerializeField] Sprite _deadSprite;
+    [SerializeField] ParticleSystem _particleSystem;
+    bool _hasDied;
+    private bool collisionWithBird;
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+      if (collision.gameObject.tag == "Bird")
+        {
+            collisionWithBird = true;
+            if (ShouldDieFromCollision(collision))
+            {
+                StartCoroutine(Die());
+
+            }
+            GetComponent<SpriteRenderer>().sprite = _deadSprite;
+            _particleSystem.Play();
+        }
+    }
+    IEnumerator Die()
+    {
+        _hasDied = true;
+        GetComponent<SpriteRenderer>().sprite = _deadSprite;
+        _particleSystem.Play();
+        yield return new WaitForSeconds(1);
+        gameObject.SetActive(false);
+    }
+    bool ShouldDieFromCollision(Collision2D col)
+    {
+        if (_hasDied) { return false; }
+        Bird bird = col.gameObject.GetComponent<Bird>();
+        if (bird != null)
+            return true;
+
+        if (collisionWithBird == true)
+            return true;
+
+
+        return false;
+    }
+
+}
