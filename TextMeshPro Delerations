@@ -1,0 +1,12 @@
+using TMPro;
+
+private Button_UI _button;
+private TextMeshProUGUI _titleText;
+private TMP_InputFeild _inputFeild;
+
+private void Awake(){
+_button = transform.Find("_button").GetComponent<Button_UI>();
+_titleText = transform.Find("_titleText").GetComponent<TextMeshProUGUI>();
+_inputFeild = transform.Find("_inputFeild").GetComponent<TMP_InputFeild>();
+}
+
