@@ -1,0 +1,59 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MusicPlayer : MonoBehaviour
+{//I put this on the musicPlayer gameObject with a "DoNotDestoyOnLoad" script
+    //and a button.
+
+    public AudioClip clip1;
+    public AudioClip clip2;
+    public AudioClip clip3;
+    public AudioClip clip4;
+    public AudioSource audioSource1;
+    private bool playClip1 = true;
+    private bool playClip2 = false;
+    private bool playClip3 = false;
+    private bool playClip4 = false;
+    public bool musicToggle = false;
+
+    public void MusicToggle() { musicToggle = !musicToggle; }
+    void Update()
+    {
+    
+        if (!musicToggle) { audioSource1.Pause(); }
+
+        if (!audioSource1.isPlaying & playClip1)
+        {
+            audioSource1.clip = clip1;
+
+            if (musicToggle) { audioSource1.Play(); }
+            playClip1 = false;
+            playClip2 = true;
+        }
+
+        if (!audioSource1.isPlaying & playClip2)
+        {
+            audioSource1.clip = clip2;
+
+            if (musicToggle) { audioSource1.Play(); }
+            playClip2 = false;
+            playClip3 = true;
+        }
+        if (!audioSource1.isPlaying & playClip3)
+        {
+            audioSource1.clip = clip3;
+
+            if (musicToggle) { audioSource1.Play(); }
+            playClip3 = false;
+            playClip4 = true;
+        }
+        if (!audioSource1.isPlaying & playClip4)
+        {
+            audioSource1.clip = clip4;
+
+            if (musicToggle) { audioSource1.Play(); }
+
+        }
+    }
+}
