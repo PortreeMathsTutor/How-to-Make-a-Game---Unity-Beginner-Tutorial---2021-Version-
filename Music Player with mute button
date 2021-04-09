@@ -18,16 +18,17 @@ public class MusicPlayer : MonoBehaviour
     public bool musicToggle = false;
 
     public void MusicToggle() { musicToggle = !musicToggle; }
-    void Update()
+
+    private void Update()
     {
-    
+        if (musicToggle) { audioSource1.Play(); }
         if (!musicToggle) { audioSource1.Pause(); }
 
         if (!audioSource1.isPlaying & playClip1)
         {
             audioSource1.clip = clip1;
 
-            if (musicToggle) { audioSource1.Play(); }
+            audioSource1.Play();
             playClip1 = false;
             playClip2 = true;
         }
@@ -36,7 +37,7 @@ public class MusicPlayer : MonoBehaviour
         {
             audioSource1.clip = clip2;
 
-            if (musicToggle) { audioSource1.Play(); }
+            audioSource1.Play();
             playClip2 = false;
             playClip3 = true;
         }
@@ -44,7 +45,7 @@ public class MusicPlayer : MonoBehaviour
         {
             audioSource1.clip = clip3;
 
-            if (musicToggle) { audioSource1.Play(); }
+            audioSource1.Play();
             playClip3 = false;
             playClip4 = true;
         }
@@ -52,7 +53,7 @@ public class MusicPlayer : MonoBehaviour
         {
             audioSource1.clip = clip4;
 
-            if (musicToggle) { audioSource1.Play(); }
+            audioSource1.Play(); 
 
         }
     }
