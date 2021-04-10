@@ -7,7 +7,7 @@ using UnityEngine;
 public class Monster : MonoBehaviour
 {
     void Update()
-    {
+    {float curDistance;
 GameObject[] gos;
                 gos = GameObject.FindGameObjectsWithTag("Diseased");
                 GameObject closest = null;
