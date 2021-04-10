@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MusicPlayer : MonoBehaviour
 {//I put this on the musicPlayer gameObject with a "DoNotDestoyOnLoad" script
-    //and a button.
+    //and a boxCollider
 
     public AudioClip clip1;
     public AudioClip clip2;
@@ -17,8 +17,11 @@ public class MusicPlayer : MonoBehaviour
     private bool playClip4 = false;
     public bool musicToggle = false;
 
-    public void MusicToggle() { musicToggle = !musicToggle; }
-
+    
+    private void OnMouseDown()
+    {
+        musicToggle = !musicToggle;
+    }
     private void Update()
     {
         if (musicToggle) { audioSource1.Play(); }
