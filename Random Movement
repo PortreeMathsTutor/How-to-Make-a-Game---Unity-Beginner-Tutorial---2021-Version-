@@ -1,0 +1,5 @@
+                                           transform.position = Vector2.MoveTowards(transform.position, go3.transform.position, step);// Moving towards trail.
+                                            Vector3 vectorToTarget = go3.transform.position - transform.position;// Moving towards trail.
+                                            float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;// Moving towards trail.
+                                            Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);// Moving towards trail.
+                                            transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * speed);/// Moving towards trail.
