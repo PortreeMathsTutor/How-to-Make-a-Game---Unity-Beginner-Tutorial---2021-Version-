@@ -4,44 +4,92 @@ using UnityEngine;
 
 public class Ant : MonoBehaviour
 {
-    public float hunger = 300000;
+    public float hungerCountDown = 300;
+    public float hungerMax = 300;
     float distance;
     public Vector3 goPosition;
     public bool returningHomeNow;
     public bool seekingFoodNow = true;
     public bool followingTrailNow;
     public GameObject raycaster;
+    public GameObject raycaster1;
+    public GameObject raycaster2;
     public GameObject home;
     public Vector2 velocity;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        hungerCountDown = hungerMax;
 
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        hunger = hunger - 1;
+        hungerCountDown = hungerCountDown - 1;
+        if (hungerCountDown < 0)
+        {
+            RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+            other.AntsRandomWalk();
+            other.AntsRandomWalk();
+         //   followingTrailNow = false;
+            seekingFoodNow = true;
+            returningHomeNow = false;
+            transform.position = home.transform.position;
+            hungerCountDown = hungerMax;
+        }
+
         if (seekingFoodNow)
         {
-            if (hunger < 0)
-            {
-                transform.position = home.transform.position;
-                hunger = 0;
-            }
-            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 3);
+            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.01f);
 
-            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.blue, 3.0f);
+            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.green, 0.01f);
             if (hit)
             {
                 Vector2 forward = raycaster.transform.TransformDirection(Vector2.up);
                 if (hit.collider.gameObject.tag == "Food")
                 {
+                    hungerCountDown = hungerMax;
+                    followingTrailNow = true;
                     seekingFoodNow = false;
                     returningHomeNow = true;
+                    //   GameObject selectedObject = hit.transform.gameObject;
+
+                    Destroy(hit.transform.gameObject); // destroy the object hit
+                    Debug.Log("hit is " + hit.collider.name);
+
+                    transform.position = Vector2.MoveTowards(transform.position, hit.transform.position, .01f);
+                    Vector3 vectorToTarget = hit.transform.position - transform.position;
+                    float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+                    Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
+                }
+                else
+                {
+                    RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                    other.AntsRandomWalk();
+                }
+            }
+            else
+            {
+                RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                other.AntsRandomWalk();
+            }
+        }
+        if (returningHomeNow)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.01f);
+
+            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.red, 0.01f);
+            if (hit)
+            {
+                Vector2 forward = raycaster.transform.TransformDirection(Vector2.up);
+                if (hit.collider.gameObject.tag == "Home")
+                {
+                    followingTrailNow = true;
+                    seekingFoodNow = true;
+                    returningHomeNow = false;
                     GameObject selectedEnemy = hit.transform.gameObject;
 
                     Destroy(hit.transform.gameObject); // destroy the object hit
@@ -53,8 +101,11 @@ public class Ant : MonoBehaviour
                     Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
                 }
-                RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
-                other.AntsRandomWalk();
+                else
+                {
+                    RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                    other.AntsRandomWalk();
+                }
             }
             else
             {
@@ -63,72 +114,75 @@ public class Ant : MonoBehaviour
             }
         }
 
-
-        if (returningHomeNow)
+        if (followingTrailNow)
         {
-            RaycastHit2D hit1 = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 10);
+            RaycastHit2D hit1 = Physics2D.Raycast(raycaster1.transform.position, raycaster1.transform.up, 5f);
 
-            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.red, 10.0f);
+            Debug.DrawRay(raycaster1.transform.position, raycaster1.transform.up, Color.yellow, 5f);
             if (hit1)
             {
-
-                Vector2 forward1 = raycaster.transform.TransformDirection(Vector2.up);
-                if (hit1.collider.gameObject.tag == "Home")
+                Vector2 forward = raycaster1.transform.TransformDirection(Vector2.up);
+                if (hit1.collider.gameObject.tag == "TrailToFood")
                 {
+                 //   GameObject selectedObject = hit.transform.gameObject;
+
+                    Destroy(hit1.transform.gameObject); // destroy the object hit
                     Debug.Log("hit is " + hit1.collider.name);
-                    seekingFoodNow = true;
-                    returningHomeNow = false;
+
+                    transform.position = Vector2.MoveTowards(transform.position, hit1.transform.position, .01f);
+                    Vector3 vectorToTarget = hit1.transform.position - transform.position;
+                    float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+                    Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
                 }
                 else
                 {
-                    RandomWalk other1 = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
-                    other1.AntsRandomWalk();
+                    RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                    other.AntsRandomWalk();
                 }
-            }
-            else
-            {
-                RandomWalk other1 = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
-                other1.AntsRandomWalk();
-            }
-
-
-
-
-
-
-
-            if (hit1)
-            {
-                if (hit1.collider.gameObject.tag == "Home")
-                {
-                    seekingFoodNow = true;
-                    returningHomeNow = false;
-                    transform.position = Vector2.MoveTowards(transform.position, hit1.transform.position, .01f);
-                    Vector3 vectorToTarget = hit1.transform.position - transform.position;
-                    float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-                    Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
-                }
-                if (hit1.collider.gameObject.tag == "TrailToFood")
-                {
-                    Debug.Log("hit is " + hit1.collider.name);
-
-                    transform.position = Vector2.MoveTowards(transform.position, hit1.transform.position, .01f);
-                    Vector3 vectorToTarget = hit1.transform.position - transform.position;
-                    float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-                    Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
-                }
-                RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
-                other.AntsRandomWalk();
             }
             else
             {
                 RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
                 other.AntsRandomWalk();
             }
+
+            RaycastHit2D hit2 = Physics2D.Raycast(raycaster2.transform.position, raycaster2.transform.up, 5f);
+
+            Debug.DrawRay(raycaster2.transform.position, raycaster2.transform.up, Color.blue, 5f);
+            if (hit2)
+            {
+                Vector2 forward = raycaster2.transform.TransformDirection(Vector2.up);
+                if (hit2.collider.gameObject.tag == "TrailToFood")
+                {
+                    //   GameObject selectedObject = hit.transform.gameObject;
+
+                    Destroy(hit2.transform.gameObject); // destroy the object hit
+                    Debug.Log("hit is " + hit2.collider.name);
+
+                    transform.position = Vector2.MoveTowards(transform.position, hit2.transform.position, .01f);
+                    Vector3 vectorToTarget = hit2.transform.position - transform.position;
+                    float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+                    Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10);
+                }
+                else
+                {
+                    RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                    other.AntsRandomWalk();
+                }
+            }
+            else
+            {
+                RandomWalk other = (RandomWalk)gameObject.GetComponent(typeof(RandomWalk));
+                other.AntsRandomWalk();
+            }
+
         }
+
     }
    
 }
+
+
 
