@@ -1,0 +1,220 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Ant : MonoBehaviour
+{
+    public bool returningHomeNow;
+    public bool seekingFoodNow = true;
+    public GameObject raycaster;
+    public GameObject raycaster1;
+    public GameObject raycaster2;
+    public GameObject home;
+    public GameObject food;
+    public Vector2 velocity;
+    public Vector3 goPosition;
+    public Vector3 moveDirection;
+    public Vector3 oldPosition;
+    public Vector3 moveHere;
+    public float angleDeg = 90f;
+    public float angle;
+    public float _randomNumber;
+    public float hungerCountDown = 300;
+    public float hungerMax = 300;
+    private float timeToChangeDirection;
+    float distance;
+    float x;
+    float y;
+    float z;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+        _randomNumber = Random.Range(0.9f, 1.1f);
+        hungerCountDown = hungerMax;
+
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+
+        hungerCountDown = hungerCountDown - 1;
+        timeToChangeDirection -= Time.deltaTime;
+        if (hungerCountDown < 0)
+        {   //   followingTrailNow = false;
+            seekingFoodNow = true;
+            returningHomeNow = false;
+            transform.position = home.transform.position;
+            hungerCountDown = hungerMax;
+        }
+        if (timeToChangeDirection <= 0)
+        {
+            x = Random.Range(-15, 15);
+            y = Random.Range(-15, 15);
+            z = 0;
+            timeToChangeDirection = 0.1f * _randomNumber;
+        }
+
+
+        float dist = Vector3.Distance(home.transform.position, transform.position);
+        dist = Mathf.Abs(dist);
+        print("Distance to home : " + dist);
+        if (dist < 0.01f)
+        {
+            seekingFoodNow = true;
+            returningHomeNow = false;
+            transform.position = Vector2.MoveTowards(transform.position, moveHere, .9f);
+
+        }
+
+        if (seekingFoodNow)
+        {
+
+            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.01f);
+
+            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.green, 0.01f);
+            if (hit)
+            {
+                Vector2 forward = raycaster.transform.TransformDirection(Vector2.up);
+                if (hit.collider.gameObject.tag == "Food")
+                {
+                    hungerCountDown = hungerMax;
+                 //   followingTrailNow = true;
+                    seekingFoodNow = false;
+                    returningHomeNow = true;
+                    moveDirection = food.transform.position - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, food.transform.position, .1f);
+
+                 dist = Vector3.Distance(hit.transform.position, transform.position);
+                    dist = Mathf.Abs(dist);
+                    print("Distance to hitFood : " + dist);
+                    if (dist < 0.1f)
+                    {
+                        Destroy(hit.transform.gameObject); // destroy the object hit
+                        Debug.Log("hit is " + hit.collider.name);
+                    }
+
+                }
+                if (hit.collider.gameObject.tag == "TrailToFood")
+                {
+                    moveDirection = hit.transform.position - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, hit.transform.position, .1f);
+
+                   dist = Vector3.Distance(hit.transform.position, transform.position);
+                    print("Distance to hitTrail : " + dist);
+                }
+
+                if (hit.collider.gameObject.tag == "Home")
+                {
+                    x = x * _randomNumber;
+                    y = y * _randomNumber;
+                    z = 0;
+                    moveHere = new Vector3(x, y, z);
+                    moveDirection = moveHere - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                }
+            }
+            else
+            {
+                x = x * _randomNumber;
+                y = y * _randomNumber;
+                z = 0;
+                moveHere = new Vector3(x, y, z);
+                moveDirection = moveHere - transform.position;
+                moveDirection = moveDirection.normalized;
+                angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                Debug.Log("Angle " + angle);
+                Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+
+            }
+        }
+        if (returningHomeNow)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.01f);
+
+            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.red, 0.01f);
+            if (hit)
+            {
+                Vector2 forward = raycaster.transform.TransformDirection(Vector2.up);
+                if (hit.collider.gameObject.tag == "Home")
+                {
+                 //   followingTrailNow = true;
+                    seekingFoodNow = true;
+                    returningHomeNow = false;
+
+                    moveDirection = home.transform.position - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, home.transform.position, .1f);
+
+                }
+                if (hit.collider.gameObject.tag == "TrailToFood")
+                {
+                    moveDirection = hit.transform.position - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, hit.transform.position, .1f);
+
+                  dist = Vector3.Distance(hit.transform.position, transform.position);
+                    dist = Mathf.Abs(dist);
+                    print("Distance to hitTrail : " + dist);
+
+                }
+                if (hit.collider.gameObject.tag == "Food")
+                {
+                    x = x * _randomNumber;
+                    y = y * _randomNumber;
+                    z = 0;
+                    moveHere = new Vector3(x, y, z);
+                    moveDirection = moveHere - transform.position;
+                    moveDirection = moveDirection.normalized;
+                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                    Debug.Log("Angle " + angle);
+                    Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                    transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                }
+            }
+            else
+            {
+                x = x * _randomNumber;
+                y = y * _randomNumber;
+                z = 0;
+                moveHere = new Vector3(x, y, z);
+                moveDirection = moveHere - transform.position;
+                moveDirection = moveDirection.normalized;
+                angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                Debug.Log("Angle " + angle);
+                Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+
+            }
+        }
+    }
+}
