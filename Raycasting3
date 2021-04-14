@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class Ant : MonoBehaviour
 {
+ private Rigidbody2D rb;
     public bool returningHomeNow;
     public bool seekingFoodNow = true;
     public GameObject raycaster;
-    public GameObject raycaster1;
-    public GameObject raycaster2;
     public GameObject home;
     public GameObject food;
     public Vector2 velocity;
@@ -16,6 +15,7 @@ public class Ant : MonoBehaviour
     public Vector3 moveDirection;
     public Vector3 oldPosition;
     public Vector3 moveHere;
+  private  float curDistance;
     public float angleDeg = 90f;
     public float angle;
     public float _randomNumber;
@@ -30,8 +30,9 @@ public class Ant : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        _randomNumber = Random.Range(0.9f, 1.1f);
+        rb = GetComponent<Rigidbody2D>();
+        _randomNumber = Random.Range(0.99f, 1.01f);
+        hungerMax = hungerMax * _randomNumber*5;
         hungerCountDown = hungerMax;
 
     }
@@ -39,7 +40,24 @@ public class Ant : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        GameObject[] gos;
+        gos = GameObject.FindGameObjectsWithTag("Food");
+        if (gos.Length==0) { food.transform.position = home.transform.position; }
+        
 
+        if (rb.velocity.sqrMagnitude < 0.01f)
+        {
+            x = x * _randomNumber;
+            y = y * _randomNumber;
+            z = 0;
+            moveHere = new Vector3(x, y, z);
+            moveDirection = moveHere - transform.position;
+            moveDirection = moveDirection.normalized;
+            angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+            Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+            rb.velocity = moveDirection;
+        }
         hungerCountDown = hungerCountDown - 1;
         timeToChangeDirection -= Time.deltaTime;
         if (hungerCountDown < 0)
@@ -54,7 +72,7 @@ public class Ant : MonoBehaviour
             x = Random.Range(-15, 15);
             y = Random.Range(-15, 15);
             z = 0;
-            timeToChangeDirection = 0.1f * _randomNumber;
+            timeToChangeDirection = 0.1f + _randomNumber;
         }
 
 
@@ -63,18 +81,20 @@ public class Ant : MonoBehaviour
         print("Distance to home : " + dist);
         if (dist < 0.01f)
         {
+            transform.rotation = Quaternion.LookRotation(-transform.forward, Vector3.up);
             seekingFoodNow = true;
             returningHomeNow = false;
-            transform.position = Vector2.MoveTowards(transform.position, moveHere, .9f);
+             transform.position = Vector2.MoveTowards(transform.position, food.transform.position, .9f);
+       //   rb.AddForce(transform.up * 100000 * 10);
 
         }
 
         if (seekingFoodNow)
         {
 
-            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.01f);
+            RaycastHit2D hit = Physics2D.Raycast(raycaster.transform.position, raycaster.transform.up, 0.1f);
 
-            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.green, 0.01f);
+            Debug.DrawRay(raycaster.transform.position, raycaster.transform.up, Color.green, 0.1f);
             if (hit)
             {
                 Vector2 forward = raycaster.transform.TransformDirection(Vector2.up);
@@ -84,21 +104,28 @@ public class Ant : MonoBehaviour
                  //   followingTrailNow = true;
                     seekingFoodNow = false;
                     returningHomeNow = true;
-                    moveDirection = food.transform.position - transform.position;
+                    moveDirection = hit.transform.position - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, food.transform.position, .1f);
+                    rb.velocity = moveDirection;
+                   
 
-                 dist = Vector3.Distance(hit.transform.position, transform.position);
+                    dist = Vector3.Distance(hit.transform.position, transform.position);
                     dist = Mathf.Abs(dist);
                     print("Distance to hitFood : " + dist);
-                    if (dist < 0.1f)
+                    if (dist < 0.7f)
                     {
+
                         Destroy(hit.transform.gameObject); // destroy the object hit
                         Debug.Log("hit is " + hit.collider.name);
+                        moveDirection = home.transform.position - transform.position;
+                        moveDirection = moveDirection.normalized;
+                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                        rb.velocity = moveDirection;
                     }
 
                 }
@@ -107,13 +134,25 @@ public class Ant : MonoBehaviour
                     moveDirection = hit.transform.position - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, hit.transform.position, .1f);
+                    rb.velocity = moveDirection;
 
-                   dist = Vector3.Distance(hit.transform.position, transform.position);
-                    print("Distance to hitTrail : " + dist);
+                    dist = Vector3.Distance(hit.transform.position, transform.position);
+                    Debug.Log("Distance to hitTrail : " + dist);
+
+                    if (gos.Length >20)
+                    {
+                        moveDirection = food.transform.position - transform.position;
+                        moveDirection = moveDirection.normalized;
+                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                        rb.velocity = moveDirection;
+                    }
+
+
+
                 }
 
                 if (hit.collider.gameObject.tag == "Home")
@@ -125,10 +164,9 @@ public class Ant : MonoBehaviour
                     moveDirection = moveHere - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                    rb.velocity = moveDirection;
                 }
             }
             else
@@ -140,10 +178,9 @@ public class Ant : MonoBehaviour
                 moveDirection = moveHere - transform.position;
                 moveDirection = moveDirection.normalized;
                 angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                Debug.Log("Angle " + angle);
                 Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                 transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                rb.velocity = moveDirection;
 
             }
         }
@@ -164,10 +201,10 @@ public class Ant : MonoBehaviour
                     moveDirection = home.transform.position - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, home.transform.position, .1f);
+                    rb.velocity = moveDirection;
+                  //  rb.AddForce(transform.up * 100000 * 10);
 
                 }
                 if (hit.collider.gameObject.tag == "TrailToFood")
@@ -175,14 +212,23 @@ public class Ant : MonoBehaviour
                     moveDirection = hit.transform.position - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, hit.transform.position, .1f);
+                    rb.velocity = moveDirection;
 
-                  dist = Vector3.Distance(hit.transform.position, transform.position);
+                    dist = Vector3.Distance(hit.transform.position, transform.position);
                     dist = Mathf.Abs(dist);
-                    print("Distance to hitTrail : " + dist);
+                   Debug.Log("Distance to hitTrail : " + dist);
+
+                    if (gos.Length > 20)
+                    {
+                        moveDirection = home.transform.position - transform.position;
+                        moveDirection = moveDirection.normalized;
+                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                        rb.velocity = moveDirection;
+                    }
 
                 }
                 if (hit.collider.gameObject.tag == "Food")
@@ -194,10 +240,9 @@ public class Ant : MonoBehaviour
                     moveDirection = moveHere - transform.position;
                     moveDirection = moveDirection.normalized;
                     angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                    Debug.Log("Angle " + angle);
                     Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                     transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                    transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                    rb.velocity = moveDirection;
                 }
             }
             else
@@ -209,10 +254,9 @@ public class Ant : MonoBehaviour
                 moveDirection = moveHere - transform.position;
                 moveDirection = moveDirection.normalized;
                 angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                Debug.Log("Angle " + angle);
                 Quaternion angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
                 transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                transform.position = Vector2.MoveTowards(transform.position, moveHere, .1f);
+                rb.velocity = moveDirection;
 
             }
         }
