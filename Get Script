@@ -1,0 +1,48 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CubeSpawner : MonoBehaviour
+{
+    Ant antScript;
+    public int i=0;
+    public GameObject trailToFood;
+    public GameObject[] ants;
+    public float maxTime = 20;
+    public float _timer;
+    public bool notHungry;
+    private void Start()
+    {
+     
+    }
+
+    // Update is called once per frame
+    private void FixedUpdate()
+    {
+        _timer = _timer + Time.deltaTime;
+
+        if (_timer >= maxTime)
+        {
+            if (i <= ants.Length)
+            {
+                if (ants[i] != null)
+                {
+                    antScript = ants[i].GetComponent<Ant>();
+                    notHungry = antScript.notHungry;
+                    transform.position = ants[i].transform.position;
+                    if (notHungry) { Instantiate(trailToFood, ants[i].transform.position, Quaternion.identity); }
+
+                    i = i + 1;
+                }
+
+
+                if (i == ants.Length)
+                {
+                    i = 0;
+                }
+            }
+        
+           _timer = 0;
+         }
+    }
+}
