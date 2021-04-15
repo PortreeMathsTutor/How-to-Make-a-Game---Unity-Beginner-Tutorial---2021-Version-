@@ -38,12 +38,13 @@ public class Ant : MonoBehaviour
     int j = 0;
     public int longerTimer;
 
-    public bool dothisOnce { get; private set; }
+    public bool dothisOnce;
+    public int _timerTrails = 507;
 
     // Start is called before the first frame update
     void Start()
-    {i = Random.Range(1, 50);
-        j = Random.Range(1, 50);
+    {i = Random.Range(1, 126);
+        j = Random.Range(1, 126);
         rb = GetComponent<Rigidbody2D>();
         _randomNumber = Random.Range(2f, 10f);
         hungerMax = hungerMax * _randomNumber*3;
@@ -60,16 +61,16 @@ public class Ant : MonoBehaviour
         longerTimer = longerTimer + 1;
         _timer = _timer + 1;
         _newRandomNumber = Mathf.Sin(Time.deltaTime)*10;
-
-        if (longerTimer % 207 == 0)
+//implemenyting list starts
+        if (longerTimer % _timerTrails == 0)
         {
             myTrailToFoodList[j].transform.position = transform.position;
             myTrailToFoodList[j].SetActive(true);
             j = j + 1;
 
-            if (j > 50) { j = 0; }
+            if (j > 126) { j = 0; }
         }
-
+        //implemenyting list ends
 
         if (rb.velocity.sqrMagnitude < 0.01f)
         {
@@ -100,17 +101,12 @@ public class Ant : MonoBehaviour
             rb.velocity = moveDirection;
             hungerCountDown = hungerMax * _randomNumber;
             // implimenting the List starts
-
-
-            for (int i = 0; i < 50; i++)
-            { 
-                myTrailToFoodList[i].SetActive(false);
+         
         }
 
-            // implimenting the List stops
-        }
+
         if (hungerCountDown>50){ notHungry = 1; }
-        if (hungerCountDown < 50) { notHungry =0; }
+        if (hungerCountDown < 126) { notHungry =0; }
         if (timeToChangeDirection <= 0)
         {
             x = Random.Range(-15, 15);
@@ -176,13 +172,14 @@ public class Ant : MonoBehaviour
 
                     if (hit.collider.gameObject.tag == "Ant")
                 {// implimenting the List starts
-                 
-                    // int index = myTrailToFoodList.IndexOf(trailToFood);
-                      myTrailToFoodList[i].transform.position = transform.position;
+                    if (longerTimer % _timerTrails == 0)
+                    {                         // int index = myTrailToFoodList.IndexOf(trailToFood);
+                        myTrailToFoodList[i].transform.position = transform.position;
                         myTrailToFoodList[i].SetActive(true);
                         i = i + 1;
-                        if (i > 50) { i = 0; }
-                   
+                        if (i > 126) { i = 0; }
+                    }
+
                     // implimenting the List stops
                     if (longerTimer <1200)
                     {
@@ -298,19 +295,17 @@ public class Ant : MonoBehaviour
 
                 if (hit.collider.gameObject.tag == "Ant")
                 {
-                 
-                    // implimenting the List starts
 
-                    // int index = myTrailToFoodList.IndexOf(trailToFood);
-          
+                    // implimenting the List starts
+                    if (longerTimer % _timerTrails == 0)
+                    {
                         myTrailToFoodList[j].transform.position = transform.position;
                         myTrailToFoodList[j].SetActive(true);
                         j = j + 1;
 
-                        if (j > 50) { j = 0; }
-                  
-
-
+                        if (j >126) { j = 0; }
+                    }
+                        // int index = myTrailToFoodList.IndexOf(trailToFood);
                     // implimenting the List stops
 
                     moveDirection = hit.transform.position - transform.position;
