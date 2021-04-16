@@ -1,0 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ChangeColorOnCollisions : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+
+
+    }
+    private Color GetRandomColor()
+    {
+        return new Color(
+            r: UnityEngine.Random.Range(0f, 1f),
+            g: UnityEngine.Random.Range(0f, 1f),
+              b: UnityEngine.Random.Range(0f, 1f));
+          
+    }
+
+
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Cube")
+        {
+            Debug.Log(message: "Impact at " + other.contacts[0].point);
+            float rayDrawDistance = 5f;
+
+            Debug.DrawRay(
+                start: other.contacts[0].point,
+                dir: other.contacts[0].normal * rayDrawDistance,
+                Color.red,
+                duration:1f);
+
+            Color randomlySelectedColor = GetRandomColor();
+            GetComponent<Renderer>().material.color = randomlySelectedColor;
+        }
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
