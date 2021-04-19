@@ -1,0 +1,66 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class ScoreUpdator : MonoBehaviour
+{/* Remeber to change the QuitMethod Script
+    I put this on the canvas in the first scene and conected it to a button
+    I did not use any of the functuons on the input field
+     */
+    [SerializeField]
+    private ScoreManager4 scoreManager;
+    public string IsName = "No Name";
+    public GameObject inputFieldtext;
+    public int score = 0;
+    public int highScoreInt = 0;
+    public Text highScore;
+    public Text _name;
+    public Text scoreTex;
+    public GameObject _theInputButtonObject;
+    public GameObject _theInputFieldObject;
+  
+    // Start is called before the first frame update
+    void Start()
+    {
+        highScoreInt=PlayerPrefs.GetInt("highScoreInt1", 0);
+        highScore.text = " HIGHSCORE: " + highScoreInt.ToString();
+    }
+
+    public void StoreName()
+    {
+        IsName = inputFieldtext.GetComponent<Text>().text;
+        PlayerPrefs.SetString("IsName", IsName);
+        PlayerPrefs.Save();
+        Debug.Log("Hello " + IsName);
+        SceneManager.LoadScene(1);
+
+    }
+    void Update()
+    {
+      
+      Scene sceneLoaded = SceneManager.GetActiveScene();
+       if (sceneLoaded.buildIndex != 0)
+       {
+           _theInputButtonObject.SetActive(false);
+      _theInputFieldObject.SetActive(false);
+       }
+       else
+       {
+            _theInputButtonObject.SetActive(true);
+          _theInputFieldObject.SetActive(true);
+          }
+
+        score = ScoreManager4.score;
+        if (score < 0) { score = 0; }
+        scoreTex.text = " SCORE: " + score.ToString("0");
+       _name.text = IsName;
+
+        if (score > PlayerPrefs.GetInt("highScoreInt", 0))
+        {
+            PlayerPrefs.SetInt("highScoreInt1", score);
+            highScore.text =  " HIGHSCORE: " + score.ToString();
+        }
+    }
+}
