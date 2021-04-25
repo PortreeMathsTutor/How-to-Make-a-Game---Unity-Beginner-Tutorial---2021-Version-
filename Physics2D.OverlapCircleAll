@@ -1,13 +1,13 @@
-     bool IsGround(){<br>
-         if (rigidBody.velocity.y <= 0) {<br>
-             foreach(Transform points in groundPoints){<br>
-                 Collider2D[] colliders = Physics2D.OverlapCircleAll (points.position,0.2f);<br>
-                 for(int i=0;i<colliders.Length;i++){<br>
-                     if (colliders [i].gameObject != gameObject) {<br>
+     bool IsGround(){
+         if (rigidBody.velocity.y <= 0) {
+             foreach(Transform points in groundPoints){
+                 Collider2D[] colliders = Physics2D.OverlapCircleAll (points.position,0.2f);
+                 for(int i=0;i<colliders.Length;i++){
+                     if (colliders [i].gameObject != gameObject) {
                          return true;<br>
-                     }<br>
-                 }<br>
+                     }
+                 }
              }
-         }<br>
-         return false;<br>
+         }
+         return false;
      }
