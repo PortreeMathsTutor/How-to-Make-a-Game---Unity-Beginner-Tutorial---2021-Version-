@@ -1,0 +1,30 @@
+      private bool CheckIfMidAir()
+      {
+              Vector3 downward = transform.TransformDirection(Vector3.down) * 10;
+              Debug.DrawRay(transform.position, downward, Color.green, 500f);
+              print("bahh");
+              Ray ray = new Ray(transform.position, transform.up * -1);
+              RaycastHit hit;
+              float distance = 18f;
+              Physics.Raycast(ray, out hit, distance);
+              if (hit.distance > 1f)
+                  {
+                      print("offground");
+                      return (true);
+                  }
+              else
+                  {
+                      print("onground");
+                      return (false);
+                  }
+      }
+
+//And then you call the method when you press the key.
+
+          if (Input.GetKeyDown(KeyCode.T))
+          {
+                   var inMidAir = CheckIfMidAir();
+                   if (inMidAir) {
+                            //Do something
+                   }
+          }
