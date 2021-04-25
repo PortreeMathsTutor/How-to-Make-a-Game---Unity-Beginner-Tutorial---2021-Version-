@@ -5,7 +5,6 @@ using UnityEngine;
 public class Ant : MonoBehaviour
 {
     public Rigidbody2D rigidbody2D;
-    public float speed = 1000;
     private float curDistance;
     private GameObject target;
     private float _randomFloat;
@@ -21,6 +20,7 @@ public class Ant : MonoBehaviour
    public GameObject[] gos;
     void Start()
     {
+  
         angleAxis = Quaternion.identity;
         timeToChangeDirection = timeToChangeDirecionSet;
         x = Random.Range(-15, 15);
@@ -41,31 +41,39 @@ public class Ant : MonoBehaviour
    
       void DosomethingOverlaped()
         {
-            for (int i = 0; i < colliders.Length; i++)
-            { 
-              
-                gos[i] = colliders[i].gameObject;
-                GameObject closest = null;
-                float distance = Mathf.Infinity;
-                Vector3 position = transform.position;
-                foreach (GameObject go in gos)
+            if (colliders.Length > 0)
+            {
+                for (int i = 0; i < colliders.Length; i++)
                 {
-                    Vector3 diff = go.transform.position - position;
-                    curDistance = diff.sqrMagnitude;
-                    if (curDistance < distance)
-                    {
-                        closest = go;
-                        distance = curDistance;
-                        if (curDistance < 5)
-                        {
 
-                            target = closest;
-                            moveDirection = target.transform.position - transform.position;
-                            moveDirection = moveDirection.normalized;
-                            angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                            angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
-                            transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                            rigidbody2D.velocity = moveDirection * speed;
+                    gos[i] = colliders[i].gameObject;
+
+                    GameObject closest = null;
+                    float distance = Mathf.Infinity;
+                    Vector3 position = transform.position;
+                    foreach (GameObject go in gos)
+                    {
+
+
+                        Vector3 diff = go.transform.position - position;
+                        curDistance = diff.sqrMagnitude;
+                        if (curDistance < distance)
+                        {
+                            closest = go;
+
+                            distance = curDistance;
+                            if (curDistance <= 0.5f)
+                            {  if (curDistance >= 0.49f)
+                                {
+                                    target = closest;
+                                    moveDirection = target.transform.position - transform.position;
+                                    moveDirection = moveDirection.normalized;
+                                    angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                                    angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                                    transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                                    rigidbody2D.velocity = moveDirection;
+                                }
+                            }
 
                         }
 
@@ -122,52 +130,6 @@ public class Ant : MonoBehaviour
 
         //                                                                                        *Random movement ends
         */
-        /*
-        if (thisIsOverlaped)
-        {
-            GameObject[] gos;
-            gos = GameObject.FindGameObjectsWithTag("Ant");
-            if (gos.Length == 0)
-            {
-                x = x * _randomFloat;
-                y = y * _randomFloat;
-                z = 0;
-                moveHere = new Vector3(x, y, z);
-                moveDirection = moveHere - transform.position;
-                moveDirection = moveDirection.normalized;
-                angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
-                transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                rigidbody2D.velocity = moveDirection;
-            }
-            GameObject closest = null;
-            float distance = Mathf.Infinity;
-            Vector3 position = transform.position;
-            foreach (GameObject go in gos)
-            {
-                Vector3 diff = go.transform.position - position;
-                curDistance = diff.sqrMagnitude;
-                if (curDistance < distance)
-                {
-                    closest = go;
-                    distance = curDistance;
-                    if (curDistance < 1)
-                    {
-
-                        target = closest;
-                        moveDirection = target.transform.position - transform.position;
-                        moveDirection = moveDirection.normalized;
-                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                        rigidbody2D.velocity = moveDirection * speed;
-                      
-                    }
-
-                }
-            }
-        }
-    */
-
+      
 
     
