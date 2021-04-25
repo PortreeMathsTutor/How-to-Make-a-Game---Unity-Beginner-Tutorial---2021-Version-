@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Ant : MonoBehaviour
 {
-public Rigidbody2D rigidbody2D;
+    public Rigidbody2D rigidbody2D;
     public float speed = 1000;
-  private  float curDistance;
+    private float curDistance;
     private GameObject target;
     private float _randomFloat;
     private float timeToChangeDirection;
-    public float timeToChangeDirecionSet=100;
+    public float timeToChangeDirecionSet = 100;
     float x;
     float y;
     float z;
@@ -18,11 +18,11 @@ public Rigidbody2D rigidbody2D;
     private float angle;
     private Quaternion angleAxis;
     private bool thisIsOverlaped;
-    public GameObject[] gos;
+   public GameObject[] gos;
     void Start()
     {
         angleAxis = Quaternion.identity;
-           timeToChangeDirection = timeToChangeDirecionSet;
+        timeToChangeDirection = timeToChangeDirecionSet;
         x = Random.Range(-15, 15);
         y = Random.Range(-15, 15);
         z = 0;
@@ -30,56 +30,58 @@ public Rigidbody2D rigidbody2D;
     }
     private void OnTriggerEnter(Collider other)
     {
-       
+
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        void DosomethingOverlaped()
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1f);
+     
+   
+      void DosomethingOverlaped()
         {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1f);
             for (int i = 0; i < colliders.Length; i++)
-            {
-                if (gos.Length == 0)
-                { }
-                else
+            { 
+              
+                gos[i] = colliders[i].gameObject;
+                GameObject closest = null;
+                float distance = Mathf.Infinity;
+                Vector3 position = transform.position;
+                foreach (GameObject go in gos)
                 {
-                    gos[i] = colliders[0].gameObject;
-                    GameObject closest = null;
-                    float distance = Mathf.Infinity;
-                    Vector3 position = transform.position;
-                    foreach (GameObject go in gos)
+                    Vector3 diff = go.transform.position - position;
+                    curDistance = diff.sqrMagnitude;
+                    if (curDistance < distance)
                     {
-                        Vector3 diff = go.transform.position - position;
-                        curDistance = diff.sqrMagnitude;
-                        if (curDistance < distance)
+                        closest = go;
+                        distance = curDistance;
+                        if (curDistance < 5)
                         {
-                            closest = go;
-                            distance = curDistance;
-                            if (curDistance > 5)
-                            {
 
-                                target = closest;
-                                moveDirection = target.transform.position - transform.position;
-                                moveDirection = moveDirection.normalized;
-                                angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
-                                angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
-                                transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
-                                rigidbody2D.velocity = moveDirection * speed;
-
-                            }
+                            target = closest;
+                            moveDirection = target.transform.position - transform.position;
+                            moveDirection = moveDirection.normalized;
+                            angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                            angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                            transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                            rigidbody2D.velocity = moveDirection * speed;
 
                         }
+
                     }
                 }
             }
         }
 
-
         DosomethingOverlaped();
 
 
+
+
+
+    }
+}
 
 
         /*                                                                                  start overlap check
@@ -168,5 +170,4 @@ public Rigidbody2D rigidbody2D;
     */
 
 
-    }
-}
+    
