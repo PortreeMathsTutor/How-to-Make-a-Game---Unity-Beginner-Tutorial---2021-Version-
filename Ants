@@ -1,0 +1,188 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Ant : MonoBehaviour
+{
+    public GameObject home;
+    public GameObject food;
+    public Rigidbody2D rigidbody2D;
+    private float curDistance;
+    private GameObject target;
+    private float _randomFloat;
+    private float timeToChangeDirection;
+    public float timeToChangeDirecionSet = 100;
+    float x;
+    float y;
+    float z;
+    int j = 0;
+    private Vector3 moveDirection;
+    private float angle;
+    private Quaternion angleAxis;
+    private bool thisIsOverlaped;
+   public GameObject[] gos;
+    public List<GameObject> trail;
+    private int longerTimer=0;
+    public int longerTimerTimer = 100;
+    private Vector3 moveHere;
+    public bool searchingForFood;
+    public bool goingHome;
+    void Start()
+    {
+      
+        angleAxis = Quaternion.identity;
+        timeToChangeDirection = timeToChangeDirecionSet;
+        x = Random.Range(-15, 15);
+        y = Random.Range(-15, 15);
+        z = 0;
+        _randomFloat = Random.Range(0.99f, 1.01f);
+        moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rigidbody2D.velocity = moveDirection;
+    }
+    /*
+        void OnCollisionEnter(Collision col)
+        {
+            if (col.gameObject.tag == "Food")
+            {
+                goingHome = true;
+                searchingForFood = false;
+                Destroy(col.gameObject);
+            }
+        }                                                            not working
+        */
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+       
+
+        longerTimer = longerTimer + 1;
+        if (longerTimer > 20)
+        {
+            if (longerTimer % longerTimerTimer == 0)
+            {
+                j =j+1;
+                trail[j].transform.position = transform.position;
+                trail[j].SetActive(true);
+                if (j > 800) { j = 0; }
+            }
+        }
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1f);
+     
+   
+      void DosomethingOverlaped()
+        {
+            if (colliders.Length > 0)
+            {
+
+                for (int i = 0; i < colliders.Length; i++)
+                {
+                    gos[i] = colliders[i].gameObject;
+
+                    if (gos[i].gameObject.tag == "Food")
+                    {
+                        goingHome = true;
+                        searchingForFood = false;
+                        Destroy(gos[i].gameObject);
+                        moveDirection = home.transform.position - transform.position;
+                        moveDirection = moveDirection.normalized;
+                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                        rigidbody2D.velocity = moveDirection;
+                    }
+                    else {
+                        if (gos[i].gameObject.tag == "Home")
+                        {
+                            goingHome = false;
+                            searchingForFood = true;
+                        }
+                        GameObject closest = null;
+                        float distance = Mathf.Infinity;
+                        Vector3 position = transform.position;
+                        foreach (GameObject go in gos)
+                        {
+                            Vector3 diff = go.transform.position - position;
+                            curDistance = diff.sqrMagnitude;
+                            if (curDistance < distance)
+                            {
+                                closest = go;
+
+                                distance = curDistance;
+                                if (curDistance <= 0.23f)
+                                {
+
+                                    if (curDistance >= 0.19f)
+                                    {
+
+                                        target = closest;
+                                        moveDirection = target.transform.position - transform.position;
+                                        moveDirection = moveDirection.normalized;
+                                        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+                                        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+                                        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+                                        rigidbody2D.velocity = moveDirection;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        DosomethingOverlaped();
+
+
+
+
+
+    }
+}
+
+
+        /*                                                                                  start overlap check
+         bool IsOverlaped() {
+             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1f);
+        foreach(Collider2D collider2D in colliders)
+             {
+                 for (int i = 0; i < colliders.Length; i++) { }
+
+                 return true;
+                 }
+                 return false;
+             }
+        thisIsOverlaped = IsOverlaped();
+                   Debug.Log("IsOverLaped = "+thisIsOverlaped);
+         //                                                                                   end overlap check
+         */
+
+
+
+        /*
+        //                                                                                Random movement beginning
+        timeToChangeDirection -= 1;
+        if (timeToChangeDirection <= 0)
+        {
+            x = Random.Range(-15, 15);
+            y = Random.Range(-15, 15);
+            z = 0;
+            timeToChangeDirection = timeToChangeDirecionSet;
+        }
+        Vector3 moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+         angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rigidbody2D.velocity = moveDirection;
+
+        //                                                                                        *Random movement ends
+        */
+      
+
+    
