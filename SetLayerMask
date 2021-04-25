@@ -1,0 +1,6 @@
+protected ContactFilter2D contactFilter;
+
+void Start()
+{
+ContactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask (gameObject.layer));
+}
