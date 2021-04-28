@@ -1,0 +1,276 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Ant : MonoBehaviour
+{
+    public GameObject[] TrailReomHome;
+    public GameObject[] trailFromfood;
+    public GameObject[] trailfollow;
+    public GameObject home;
+    public GameObject food;
+    public Rigidbody2D rb;
+    private float curDistance;
+    private GameObject target;
+    private float _randomFloat;
+    public float timeToChangeDirection;
+    public float timeToChangeDirecionSet = 100;
+    float x;
+    float y;
+    float z;
+    int inum = 0;
+    int jnum = 1;
+    int knum = 2;
+    float moveTowardsTrail;
+    private Vector3 moveDirection;
+    private float angle;
+    public int _randomNum;
+    private Quaternion angleAxis;
+    private bool thisIsOverlaped;
+    private int longerTimer = 0;
+    private Vector3 moveHere;
+    public bool searchingForFood;
+    public bool goingHome;
+    public bool walk;
+    public bool randomStep;
+    public bool homeStep;
+    public bool foodStep;
+    public bool makeTrailFood;
+    public int makeTraiTimerFood;
+    public int makeTraiTimerFollow;
+    public bool makeTrailFollow;
+    public int makeTraiTimerHome;
+    public bool makeTrailHome;
+    Vector3 distanceFromCenter;
+
+
+
+    void Start()
+    {
+
+        rb = GetComponent<Rigidbody2D>();
+        timeToChangeDirection = Random.Range(1, 100);
+        inum = Random.Range(1, 100) * 2;
+        jnum = inum + 1;
+        rb = GetComponent<Rigidbody2D>();
+        _randomFloat = Random.Range(0.99f, 1.01f);
+        _randomNum = Random.Range(700, 1000);
+        angleAxis = Quaternion.identity;
+        timeToChangeDirecionSet = timeToChangeDirecionSet + Random.Range(1.1f, 10.1f);
+        x = Random.Range(-15, 15);
+        y = Random.Range(-15, 15);
+        z = 0;
+        moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rb.velocity = moveDirection;
+
+    }
+
+    private void TakeStepHome()
+    {
+        moveDirection = home.transform.position - transform.position;
+    }
+    void TakeStepFood()
+    {
+        moveDirection = food.transform.position - transform.position;
+    }
+    void TakeRandomStep()
+    {
+        moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+    }
+    void Walk()
+    {
+
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rb.velocity = moveDirection;
+    }
+
+    private void FixedUpdate()
+    {
+        longerTimer = longerTimer + 1;
+
+        timeToChangeDirection += 1;
+        if (timeToChangeDirection > timeToChangeDirecionSet)
+        {
+            x = Random.Range(-15, 15);
+            y = Random.Range(-15, 15);
+            z = 0;
+            timeToChangeDirection = 0;
+        }
+
+        if (randomStep == true)
+        {
+            //   Debug.Log("randomStep");
+            TakeRandomStep();
+            homeStep = false;
+            foodStep = false;
+        }
+        if (homeStep == true)
+        {
+            TakeStepHome();
+            foodStep = false;
+            randomStep = false;
+        }
+        if (foodStep == true)
+        {
+            TakeStepFood();
+            randomStep = false;
+            homeStep = false;
+        }
+
+        if (walk == true)
+        {
+            Walk();
+        }
+        if (makeTrailFollow)
+        {
+            if (makeTraiTimerFollow < 100)
+            {
+                makeTraiTimerFollow += 1;
+                if (timeToChangeDirection % 10 == 0)
+                {
+                    trailfollow[inum].SetActive(true);
+                    trailfollow[inum].transform.position = transform.position;
+                    inum = inum + 1;
+                    if (inum > 90) { inum = 0; }
+                }
+            }
+        }
+        if (makeTrailFood)
+        {
+            if (makeTraiTimerFood < 100)
+            {
+                makeTraiTimerFood += 1;
+                if (timeToChangeDirection % 10 == 0)
+                {
+                    trailFromfood[jnum].SetActive(true);
+                    trailFromfood[jnum].transform.position = transform.position;
+                    jnum = jnum + 1;
+                    if (jnum > 90) { jnum = 0; }
+                }
+            }
+        }
+        if (makeTrailHome)
+        {
+            if (makeTraiTimerHome < 100)
+            {
+                makeTraiTimerFood += 1;
+                if (timeToChangeDirection % 10 == 0)
+                {
+                    TrailReomHome[knum].SetActive(true);
+                    TrailReomHome[knum].transform.position = transform.position;
+                    knum = knum + 1;
+                    if (knum > 90) { knum = 0; }
+                }
+            }
+        }
+
+    }
+        void OnTriggerExit2D(Collider2D col)
+        {
+            if (col.tag == "Walls")
+            {
+                homeStep = false;
+                foodStep = false;
+                randomStep = true;
+                moveDirection = home.gameObject.transform.position - transform.position;
+            }
+            if (col.tag == "TrailToFood")
+            {
+                //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+                if (col is CapsuleCollider2D)
+                {
+                    makeTraiTimerFood = 0;
+                    makeTrailFood = true;
+
+                }
+            }
+            if (col.tag == "Home")
+            {
+                //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+                if (col is BoxCollider2D)
+                {
+                    makeTraiTimerHome = 0;
+                    makeTrailHome = true;
+                }
+            }
+        }
+        void OnTriggerEnter2D(Collider2D col)
+        {
+              Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+            if (col.tag == "Ant")
+            {
+                moveDirection = col.gameObject.transform.position - transform.position;
+                makeTraiTimerFollow = 0;
+                makeTrailFollow = true;
+            }
+
+
+            if (col.tag == "TrailToFood")
+            {
+                //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+                if (col is CapsuleCollider2D)
+                {
+                    moveDirection = col.gameObject.transform.position - transform.position;
+                }
+
+                if (col is CircleCollider2D)
+                {
+                    randomStep = true;
+                }
+            }
+
+            if (col.tag == "Home")
+            {
+                if (col is BoxCollider2D)
+                {
+                    homeStep = true;
+                }
+                if (col is CircleCollider2D)
+                {
+
+                    randomStep = true;
+                    if (longerTimer > 40)
+                    {
+                        searchingForFood = true;
+                        goingHome = false;
+                        homeStep = false;
+                        foodStep = false;
+                    }
+                }
+            }
+
+            if (col.tag == "FoodEmpty")
+            {
+                makeTrailFood = true;
+                makeTraiTimerFood = 0;
+                homeStep = false;
+                foodStep = true;
+                randomStep = false;
+            }
+            if (col.tag == "Food")
+            {
+
+                if (searchingForFood) { Destroy(col.gameObject); }
+                searchingForFood = false;
+                goingHome = true;
+                //   homeStep = true;
+                foodStep = false;
+                randomStep = true;
+            }
+
+        }
+    }
+
+
+
+
+
