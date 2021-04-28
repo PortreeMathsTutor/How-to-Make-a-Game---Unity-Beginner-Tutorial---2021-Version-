@@ -1,0 +1,326 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Ant : MonoBehaviour
+{
+    public List<GameObject> myTrailToFoodList;
+    public GameObject home;
+    public GameObject food;
+    public Rigidbody2D rb;
+    private float curDistance;
+    private GameObject target;
+    private float _randomFloat;
+    public float timeToChangeDirection;
+    public float timeToChangeDirecionSet = 100;
+    float x;
+    float y;
+    float z;
+    int inum = 0;
+    int jnum = 1;
+    int knum = 2;
+    float moveTowardsTrail;
+    private Vector3 moveDirection;
+    private float angle;
+    public int _randomNum;
+    private Quaternion angleAxis;
+    private bool thisIsOverlaped;
+    private int longerTimer = 0;
+    public int longerTimerTimer = 100;
+    private Vector3 moveHere;
+    public bool searchingForFood;
+    public bool goingHome;
+    public bool walk;
+    private int shorterTimer;
+    public bool randomStep;
+    public bool homeStep;
+    public bool foodStep;
+
+    public bool makeTrail;
+
+    public bool makeTrailk;
+    public int makeTraiTimer;
+
+    public bool makeTrailj;
+    Vector3 distanceFromCenter;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        timeToChangeDirection = Random.Range(1, 100);
+        inum = Random.Range(1, 100) * 2;
+        jnum = inum + 1;
+        rb = GetComponent<Rigidbody2D>();
+        _randomFloat = Random.Range(0.99f, 1.01f);
+        _randomNum = Random.Range(700, 1000);
+        angleAxis = Quaternion.identity;
+        timeToChangeDirecionSet = timeToChangeDirecionSet + Random.Range(1.1f, 10.1f);
+        x = Random.Range(-15, 15);
+        y = Random.Range(-15, 15);
+        z = 0;
+        moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rb.velocity = moveDirection;
+
+    }
+
+    private void TakeStepHome()
+    {
+        moveDirection = home.transform.position - transform.position;
+    }
+    void TakeStepFood()
+    {
+        moveDirection = food.transform.position - transform.position;
+    }
+    void TakeRandomStep()
+    {
+        moveHere = new Vector3(x, y, z);
+        moveDirection = moveHere - transform.position;
+    }
+    void Walk()
+    {
+
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+        rb.velocity = moveDirection;
+    }
+
+    private void FixedUpdate()
+    {
+        /*   distanceFromCenter = transform.position;
+           if (distanceFromCenter.sqrMagnitude < 5)
+           {
+               float speed = 30;
+               moveHere = new Vector3(x, y, z);
+               rb.velocity = moveHere * speed;
+           }
+           */
+        timeToChangeDirection += 1;
+        if (timeToChangeDirection > timeToChangeDirecionSet)
+        {
+            x = Random.Range(-15, 15);
+            y = Random.Range(-15, 15);
+            z = 0;
+            timeToChangeDirection = 0;
+        }
+        /*   moveHere = new Vector3(x, y, z);
+           moveDirection = moveHere - transform.position;
+           moveDirection = moveDirection.normalized;
+           angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg - 90f;
+           angleAxis = Quaternion.AngleAxis(angle, Vector3.forward);
+           transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 1000);
+          rb.velocity = moveDirection;
+          */
+        if (randomStep == true)
+        {
+            Debug.Log("randomStep");
+            TakeRandomStep();
+            homeStep = false;
+            foodStep = false;
+        }
+        if (homeStep == true)
+        {
+            TakeStepHome();
+            foodStep = false;
+            randomStep = false;
+        }
+        if (foodStep == true)
+        {
+            TakeStepFood();
+            randomStep = false;
+            homeStep = false;
+        }
+
+        if (walk == true)
+        {
+            Walk();
+        }
+        if (makeTrail)
+        {
+
+            if (makeTraiTimer < 300)
+            {
+                makeTraiTimer += 1;
+                if (timeToChangeDirection % 70 == 0)
+                {
+                    myTrailToFoodList[inum].transform.position = transform.position;
+                    myTrailToFoodList[inum].SetActive(true);
+                    inum = inum + 3;
+                    if (inum > 800) { inum = 0; }
+                    homeStep = false;
+                    foodStep = false;
+                    randomStep = true;
+                }
+
+            }
+
+        }
+        if (makeTrailj)
+        {
+
+            if (makeTraiTimer < 300)
+            {
+                makeTraiTimer += 1;
+                if (timeToChangeDirection % 71 == 0)
+                {
+                    myTrailToFoodList[inum].transform.position = transform.position;
+                    myTrailToFoodList[inum].SetActive(true);
+                    jnum = jnum + 3;
+                    if (jnum > 800) { jnum = 0; }
+                    homeStep = false;
+                    foodStep = false;
+                    randomStep = true;
+                }
+
+            }
+
+        }
+        if (makeTrailk)
+        {
+
+            if (makeTraiTimer < 300)
+            {
+                makeTraiTimer += 1;
+                if (timeToChangeDirection % 72 == 0)
+                {
+                    myTrailToFoodList[inum].transform.position = transform.position;
+                    myTrailToFoodList[inum].SetActive(true);
+                    knum = knum + 3;
+                    if (knum > 800) { knum = 0; }
+                    homeStep = false;
+                    foodStep = false;
+                    randomStep = true;
+                }
+
+            }
+
+        }
+    }
+
+
+    IEnumerator ExampleCoroutine()
+    {
+        makeTrailk = true;
+        //Print the time of when the function is first called.
+        //  Debug.Log("Started Coroutine at timestamp : " + Time.time);
+
+        //yield on a new YieldInstruction that waits for 5 seconds.
+        yield return new WaitForSeconds(0.8f);
+
+        //After we have waited 5 seconds print the time again.
+        //   Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        makeTrailk = false;
+        randomStep = false;
+        if (goingHome)
+        {
+           
+            foodStep = false;
+        }
+        if (searchingForFood)
+        {
+            homeStep = false;
+            foodStep = true;
+        }
+    }
+    void OnTriggerExit2D(Collider2D coll)
+
+    {
+        if (coll.tag == "TrailToFood")
+        {
+            //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+            if (coll is CapsuleCollider2D)
+            {
+
+                StartCoroutine(ExampleCoroutine());
+            }
+        }
+    }
+        void OnTriggerEnter2D(Collider2D col)
+        {
+        //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+
+        if (col.tag == "TrailToFood")
+        {
+            //  Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+            if (col is CapsuleCollider2D)
+            {
+                moveDirection = col.gameObject.transform.position - transform.position;
+
+            }
+
+
+
+
+
+
+
+            if (col is CircleCollider2D)
+            {
+
+                if (goingHome)
+                {
+                    homeStep = false;
+                    foodStep = false;
+                    randomStep = true;
+                }
+                if (searchingForFood)
+                {
+                    homeStep = false;
+                    foodStep = false;
+                    randomStep = true;
+                }
+            }
+        }
+
+            if (col.tag == "Home")
+            {
+                if (col is BoxCollider2D)
+                {
+                  
+                //    searchingForFood = false;
+                  //  goingHome = true;
+                //   makeTrailk = true;
+                //   makeTraiTimer = 0;
+                homeStep = true;
+
+
+            }
+                if (col is CircleCollider2D)
+                {
+
+                    randomStep = true;
+                    searchingForFood = true;
+                    goingHome = false;
+                    homeStep = false;
+                    foodStep = false;
+                }
+            }
+            if (col.tag == "FoodEmpty")
+            {
+                makeTrail = true;
+                makeTraiTimer = 0;
+                homeStep = false;
+                foodStep = true;
+                randomStep = false;
+            }
+            if (col.tag == "Food")
+            {
+                if (searchingForFood) { Destroy(col.gameObject); }
+                searchingForFood = false;
+                goingHome = true;
+            homeStep = true;
+                foodStep = false;
+                randomStep = true;
+            }
+        }
+}
+  
+      
+
+ 
