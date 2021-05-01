@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayRandomSounds : MonoBehaviour
+{
+    public int timer = 0;
+    public int speakEveryQuestionmarkSeconds= 10;
+    public AudioClip[] audioClipArray;
+    AudioSource playRandomSounds;
+    // Start is called before the first frame update
+    void Start()
+    {
+        playRandomSounds = GetComponent<AudioSource>();
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        timer += 1;
+        if (timer%speakEveryQuestionmarkSeconds==0)
+        {
+            playRandomSounds.clip = audioClipArray[Random.Range(0, audioClipArray.Length)];
+            playRandomSounds.PlayOneShot(playRandomSounds.clip);
+        }
+    }
+}
