@@ -1,0 +1,42 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CreateEnemiesOnTrigger : MonoBehaviour
+{
+    public GameObject[] spawnPoints;    //The array that will contain the different spawn points
+
+    public int numberOfObjectsToSDpawn=3;
+   public GameObject toSpawn;
+
+    // Use this for initialization
+    void Start()
+    {
+      
+    }
+
+    void OnTriggerEnter(Collider col)
+    {
+        if (col.tag == "Player") //Check for what you want about the collider here
+        {
+            SpawnAnObject();
+        }
+    }
+
+    private void SpawnAnObject()
+    {
+      
+
+        for (int i = 0; i < numberOfObjectsToSDpawn; i++)
+        {
+            GameObject spawnPoint = spawnPoints[0]; //Set a default spawnpoint to avoid errors
+
+          
+                spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+         
+
+            Instantiate(toSpawn, spawnPoint.transform.position, Quaternion.identity);   //Spawn the wanted GameObject
+         
+        }
+    }
+}
