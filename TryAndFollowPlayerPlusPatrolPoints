@@ -1,0 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TryToFollowPlayer : MonoBehaviour
+{ // The target marker.
+    GameObject target1;
+    public float speed=4f;
+    Rigidbody rb;
+    Vector3 forward;
+    private float angle;
+    private Quaternion angleAxis;
+    public Transform[] destinations;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        target1 = GameObject.Find("PlayerVariant");
+        rb = GetComponent<Rigidbody>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector3 moveDirection = target1.transform.position - transform.position;
+        moveDirection = moveDirection.normalized;
+        angle = Mathf.Atan2(moveDirection.z, moveDirection.x) * Mathf.Rad2Deg - 90f;
+        angleAxis = Quaternion.AngleAxis(angle, Vector3.down);
+        transform.rotation = Quaternion.Slerp(transform.rotation, angleAxis, Time.deltaTime * 500);
+        rb.velocity = moveDirection;
+      //  rb.AddForce(moveDirection * speed, ForceMode.Force);
+
+    }
+}
